@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活导航站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #eef2f5;
+            padding: 20px 0;
+            scroll-behavior: smooth;
+        }
+        /* 个人信息栏样式 */
+        .user-info {
+            background-color: white;
+            padding: 12px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        /* 容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* 头部搜索区 - 滚动吸顶 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background-color: #eef2f5;
+            padding: 15px 0;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        /* 搜索框聚焦呼吸效果 */
+        .search-bar {
+            display: flex;
+            max-width: 700px;
+            margin: 0 auto;
+            gap: 10px;
+            position: relative;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #3498db;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-bar input:focus {
+            border-color: #2980b9;
+            animation: breath 2s infinite ease-in-out;
+        }
+        @keyframes breath {
+            0%,100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(52, 152, 219, 0.2); }
+        }
+        .search-bar button {
+            padding: 14px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+        /* 搜索联想提示框 */
+        .search-suggest {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            list-style: none;
+            padding: 10px 20px;
+            display: none;
+        }
+        .search-suggest li {
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        .search-suggest li:hover {
+            color: #3498db;
+        }
+        /* 导航分类区 */
+        .nav-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        /* 卡片渐变背景动画 + 悬浮效果 */
+        .category-card {
+            background: linear-gradient(120deg, #ffffff 0%, #f8f9fa 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 8s infinite ease-in-out;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        @keyframes gradientMove {
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .category-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-top: 4px solid #3498db;
+        }
+        .category-card h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        /* 站点小图标 - 统一尺寸 */
+        .site-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .site-list {
+            list-style: none;
+        }
+        .site-list li {
+            margin-bottom: 10px;
+        }
+        /* 站点链接悬浮变色 + 位移 + 下划线效果 */
+        .site-list li a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .site-list li a:hover {
+            color: #3498db;
+            transform: translateX(5px);
+        }
+        .site-list li a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background-color: #3498db;
+            transform: scalex(0);
+            transition: transform 0.3s;
+        }
+        .site-list li a:hover::after {
+            transform: scalex(1);
+        }
+        /* 底部说明区样式 */
+        .intro-section {
+            margin-top: 50px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .intro-section h3 {
+            color: #3498db;
+            font-size: 22px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .intro-section p {
+            color: #2c3e50;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        .intro-section .anim-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .intro-section .anim-list li {
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        /* 说明区超链接样式 */
+        .intro-section a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .intro-section a:hover {
+            text-decoration: underline;
+        }
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+            }
+            .search-bar button {
+                width: 100%;
+            }
+            .intro-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部个人信息栏 -->
+    <div class="user-info">
+        姓名：向妍 | 学号：202425180121<br>
+        自我介绍：热爱美食与生活的长沙理工大学在校生，热衷发掘校园周边好吃又实惠的美食小店～<br>
+        前一学号：刘禹涵 | 学号：202425180120 | 后一学号：田娅岚 | 学号：202425180122
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>生活导航站</h1>
+            <div class="search-bar" id="searchBar">
+                <input type="text" placeholder="输入关键词搜索..." id="searchInput">
+                <button>搜索</button>
+                <!-- 搜索联想列表 -->
+                <ul class="search-suggest" id="searchSuggest">
+                    <li>学习资源</li>
+                    <li>短视频</li>
+                    <li>外卖团购</li>
+                    <li>出行导航</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="nav-categories">
+            <!-- 学习类站点 -->
+            <div class="category-card">
+                <h2>学习专区</h2>
+                <ul class="site-list">
+                    <li><a href="https://wenku.baidu.com" target="_blank"><img src="https://www.baidu.com/favicon.ico" class="site-icon">百度文库 - 文档资料</a></li>
+                    <li><a href="https://www.bilibili.com" target="_blank"><img src="https://www.bilibili.com/favicon.ico" class="site-icon">哔哩哔哩 - 学习视频</a></li>
+                    <li><a href="https://www.icourse163.org" target="_blank"><img src="https://picsum.photos/id/15/20/20" class="site-icon">中国大学MOOC - 在线课程</a></li>
+                    <li><a href="https://github.com" target="_blank"><img src="https://github.com/favicon.ico" class="site-icon">GitHub - 代码仓库</a></li>
+                </ul>
+            </div>
+
+            <!-- 娱乐类站点 -->
+            <div class="category-card">
+                <h2>娱乐休闲</h2>
+                <ul class="site-list">
+                    <li><a href="https://www.qq.com" target="_blank"><img src="https://picsum.photos/id/25/20/20" class="site-icon">腾讯网 - 新闻娱乐</a></li>
+                    <li><a href="https://www.douyin.com" target="_blank"><img src="https://www.douyin.com/favicon.ico" class="site-icon">抖音 - 短视频平台</a></li>
+                    <li><a href="https://www.163.com" target="_blank"><img src="https://www.163.com/favicon.ico" class="site-icon">网易 - 游戏资讯</a></li>
+                    <li><a href="https://music.163.com" target="_blank"><img src="https://music.163.com/favicon.ico" class="site-icon">网易云音乐 - 音乐播放</a></li>
+                </ul>
+            </div>
+
+            <!-- 生活类站点 -->
+            <div class="category-card">
+                <h2>生活服务</h2>
+                <ul class="site-list">
+                    <li><a href="https://www.taobao.com" target="_blank"><img src="https://www.taobao.com/favicon.ico" class="site-icon">淘宝 - 网上购物</a></li>
+                    <li><a href="https://www.meituan.com" target="_blank"><img src="https://www.meituan.com/favicon.ico" class="site-icon">美团 - 外卖团购</a></li>
+                    <li><a href="https://map.baidu.com" target="_blank"><img src="https://map.baidu.com/favicon.ico" class="site-icon">百度地图 - 出行导航</a></li>
+                    <li><a href="https://www.ctrip.com" target="_blank"><img src="https://www.ctrip.com/favicon.ico" class="site-icon">携程 - 旅游订票</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 事件动画说明 + 创意简介（带超链接） -->
+        <div class="intro-section">
+            <h3>✨ 站点创意与动态效果说明</h3>
+            <p>这是一款为在校生量身打造的<strong>一站式生活导航站</strong>，整合<a href="https://www.icourse163.org" target="_blank">学习</a>、<a href="https://www.douyin.com" target="_blank">娱乐</a>、<a href="https://www.meituan.com" target="_blank">生活</a>三大核心场景资源，无需在繁杂网页中反复跳转，轻点即可直达目标站点。界面设计兼顾美观与实用，动态交互效果让操作更具趣味性。</p>
+            <p><strong>📌 核心动态事件/动画</strong></p>
+            <ul class="anim-list">
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Animations/Using_CSS_animations" target="_blank">搜索框聚焦呼吸动画</a>：输入框获得焦点时，边框阴影循环缩放，强化交互反馈</li>
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/gradient/linear-gradient" target="_blank">卡片渐变背景动画</a>：分类卡片背景色缓慢循环渐变，视觉层次更丰富</li>
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform" target="_blank">卡片悬浮效果</a>：鼠标悬停时卡片上移+放大+顶部描边，提升操作感知</li>
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/transition" target="_blank">链接悬浮交互</a>：站点链接变色+右移+下划线展开，引导用户点击</li>
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/focus_event" target="_blank">搜索联想功能</a>：点击联想词自动填充搜索框，优化搜索体验</li>
+                <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/position" target="_blank">导航吸顶效果</a>：滚动页面时搜索栏固定顶部，方便随时搜索</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 搜索框联想提示功能
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggest = document.getElementById('searchSuggest');
+        const searchBar = document.getElementById('searchBar');
+
+        searchInput.addEventListener('focus', function() {
+            searchSuggest.style.display = 'block';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!searchBar.contains(e.target)) {
+                searchSuggest.style.display = 'none';
+            }
+        });
+
+        // 点击联想项填充到搜索框
+        const suggestItems = searchSuggest.querySelectorAll('li');
+        suggestItems.forEach(item => {
+            item.addEventListener('click', function() {
+                searchInput.value = this.textContent;
+                searchSuggest.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
